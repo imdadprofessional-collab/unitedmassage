@@ -1,0 +1,41 @@
+{
+  "site": {
+    "name": "United Massage",
+    "tagline": "Relax. Restore. Renew.",
+    "phone": "+12019421938",
+    "phoneDisplay": "(201) 942-1938",
+    "email": "",
+    "address1": "3100 Godby Rd",
+    "address2": "College Park, GA 30349",
+    "mapUrl": "https://www.google.com/maps/search/?api=1&query=3100+Godby+Rd+College+Park+GA+30349",
+    "hours": "Open daily: 9:00 AM – 9:00 PM",
+    "payment": "Cash only. Please bring cash to your appointment.",
+    "bookingUrl": "https://example.com/replace-with-real-booking-link",
+    "footerNote": "Cash pay only. Appointments recommended; walk-ins welcome when available."
+  },
+  "hero": {
+    "title": "Therapeutic massage in College Park, Georgia",
+    "subtitle": "Melt away tension, ease sore muscles and leave feeling like yourself again. Quiet rooms, clean linens and a relaxed, professional atmosphere.",
+    "cta": "Book an Appointment"
+  },
+  "about": {
+    "title": "A calm place to reset",
+    "body": "United Massage offers a peaceful space to step out of the day. Whether you want a gentle relaxation session or firmer work on stubborn knots, every visit is tailored to what your body needs.\n\nTell us where you hold stress and how much pressure you like, and we will take care of the rest."
+  },
+  "highlights": [
+    { "title": "Tailored pressure", "text": "From feather-light to deep, every session is adjusted to you." },
+    { "title": "Clean & quiet", "text": "Fresh linens and a calm, private room for each guest." },
+    { "title": "Easy payment", "text": "We are cash pay. No cards, no surprises." }
+  ],
+  "services": [
+    { "name": "Swedish Massage", "desc": "Long, flowing strokes for deep relaxation and better circulation.", "prices": "Call for pricing" },
+    { "name": "Deep Tissue Massage", "desc": "Slow, firm pressure targeting chronic tension and tight muscle layers.", "prices": "Call for pricing" },
+    { "name": "Hot Stone Massage", "desc": "Warm stones melt away tightness and help you unwind completely.", "prices": "Call for pricing" },
+    { "name": "Sports Massage", "desc": "Focused work to support recovery and keep you moving.", "prices": "Call for pricing" },
+    { "name": "Prenatal Massage", "desc": "Gentle, supportive bodywork for expectant mothers.", "prices": "Call for pricing" },
+    { "name": "Foot Reflexology", "desc": "Targeted pressure on the feet to relieve fatigue and stress.", "prices": "Call for pricing" }
+  ],
+  "servicesNote": "Prices are set by the owner in the admin panel. Cash only.",
+  "reviewsIntro": "Visited us? We would love to hear how it went.",
+  "reviews": []
+}

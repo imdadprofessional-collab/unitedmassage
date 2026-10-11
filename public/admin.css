@@ -1,0 +1,14 @@
+body.adminbg{background:#f2f0ea;font:15px/1.5 system-ui,sans-serif;min-height:100vh}
+.login{max-width:360px;margin:12vh auto;background:#fff;padding:32px;border-radius:14px;box-shadow:0 6px 30px #0001}
+.error{background:#fde8e8;color:#a31;padding:8px 12px;border-radius:8px}
+.adminbar{display:flex;justify-content:space-between;align-items:center;background:#1f4d43;color:#fff;padding:12px 24px;position:sticky;top:0;z-index:5}
+.adminbar a,.link{color:#fff;margin-left:16px;background:none;border:0;font:inherit;cursor:pointer;text-decoration:underline}
+.adminwrap{max-width:900px;margin:24px auto;padding:0 16px 80px}
+fieldset{background:#fff;border:1px solid #ddd6c6;border-radius:12px;margin:0 0 20px;padding:18px 20px}legend{font-weight:700;padding:0 8px;color:#1f4d43}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}@media(max-width:640px){.row{grid-template-columns:1fr}}
+.item{border:1px dashed #cfc8b8;border-radius:10px;padding:12px;margin-bottom:12px}
+button.sm,.btn.sm{font-size:.8rem;padding:6px 14px;margin-right:6px}button.danger{background:#b3382c;border-color:#b3382c}
+.savebar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;padding:12px;text-align:center}
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 20px;border-radius:8px;display:none}
+.tag{font-size:.75rem;padding:2px 8px;border-radius:99px;background:#eee}.tag.approved{background:#d6efe3}.tag.pending{background:#fbeccb}
+.inl{display:inline}
