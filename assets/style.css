@@ -69,3 +69,5 @@ footer a{color:#fff}.soc{margin-bottom:18px}
 .hp{position:absolute;left:-9999px}.pill.big{border:0;padding:12px 30px;font-size:14px;cursor:pointer;font-family:inherit}
 .fine{font-size:11px;color:var(--mut);margin:12px 0 0}.panel{margin-bottom:18px;padding:22px}.panel h3{margin:0 0 8px;font-size:19px;color:var(--pd)}.panel p{font-size:13px;color:var(--mut);margin:0 0 10px}
 @media(max-width:800px){.bgrid,.two,.chks{grid-template-columns:1fr}}
+.cashbtn{display:inline-flex;align-items:center;gap:10px;background:#00c244;color:#fff!important;text-decoration:none;font-weight:500;font-size:14px;padding:10px 22px 10px 12px;border-radius:99px}
+.cashbtn svg{width:26px;height:26px}.cashbtn:hover{background:#00a63a}
