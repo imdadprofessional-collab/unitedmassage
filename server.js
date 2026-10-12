@@ -4,23 +4,18 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { renderPage, renderLogin, renderAdmin } = require('./render');
+const store = require('./store');
 
 const PORT = process.env.PORT || 3000;
 const DATA = path.join(__dirname, 'data');
-const CONTENT_FILE = path.join(DATA, 'content.json');
-const ADMIN_FILE = path.join(DATA, 'admin.json');
 const PUBLIC = path.join(__dirname, 'public');
 const COOKIE = 'um_session';
 const MAX_BODY = 1024 * 1024;
 
 // ---------- storage ----------
-const readJSON = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
-const writeJSON = (f, d) => {
-  const tmp = f + '.tmp';
-  fs.writeFileSync(tmp, JSON.stringify(d, null, 2));
-  fs.renameSync(tmp, f);
-};
-const getContent = () => readJSON(CONTENT_FILE);
+const getContent = () => store.get('content');
+const saveContent = (c) => store.set('content', c);
+const getAdmin = () => store.get('admin');
 
 function hashPassword(pw, salt = crypto.randomBytes(16).toString('hex')) {
   return { salt, hash: crypto.scryptSync(pw, salt, 64).toString('hex') };
@@ -32,22 +27,26 @@ function checkPassword(pw, rec) {
 }
 
 // First run: create admin from env or a generated password (printed once).
+let adminReady;
 function ensureAdmin() {
-  if (fs.existsSync(ADMIN_FILE)) return;
-  const username = process.env.ADMIN_USER || 'admin';
-  let pw = process.env.ADMIN_PASSWORD;
-  let generated = false;
-  if (!pw) { pw = crypto.randomBytes(9).toString('base64url'); generated = true; }
-  writeJSON(ADMIN_FILE, { username, ...hashPassword(pw) });
-  console.log('\n=== Admin account created ===');
-  console.log('Username:', username);
-  if (generated) console.log('Password:', pw, ' (shown once – change it in the admin panel)');
-  console.log('=============================\n');
+  adminReady = adminReady || (async () => {
+    if (await getAdmin()) return;
+    const username = process.env.ADMIN_USER || 'admin';
+    let pw = process.env.ADMIN_PASSWORD;
+    let generated = false;
+    if (!pw) { pw = crypto.randomBytes(9).toString('base64url'); generated = true; }
+    await store.set('admin', { username, ...hashPassword(pw) });
+    console.log('\n=== Admin account created ===');
+    console.log('Username:', username);
+    if (generated) console.log('Password:', pw, ' (shown once – change it in the admin panel)');
+    console.log('=============================\n');
+  })();
+  return adminReady;
 }
-ensureAdmin();
 
 const SECRET = (() => {
   if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+  if (process.env.VERCEL) throw new Error('Set SESSION_SECRET in the Vercel project settings');
   const f = path.join(DATA, 'session-secret');
   if (!fs.existsSync(f)) fs.writeFileSync(f, crypto.randomBytes(32).toString('hex'));
   return fs.readFileSync(f, 'utf8');
@@ -186,11 +185,12 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://x');
     const p = url.pathname.replace(/\/+$/, '') || '/';
     const method = req.method;
+    await ensureAdmin();
 
     if (method === 'GET' && serveStatic(req, res, p)) return;
 
     if (method === 'GET' && PAGES.includes(p)) {
-      return html(res, renderPage(p, getContent(), { sent: url.searchParams.get('review') === 'sent' }));
+      return html(res, renderPage(p, await getContent(), { sent: url.searchParams.get('review') === 'sent' }));
     }
 
     // public review submission -> pending moderation
@@ -200,9 +200,9 @@ const server = http.createServer(async (req, res) => {
       if (f.website) return redirect(res, '/?review=sent#reviews'); // honeypot
       const r = sanitizeReview({ ...f, status: 'pending', id: '' });
       if (!r.name || r.text.length < 10) return redirect(res, '/#reviews');
-      const c = getContent();
+      const c = await getContent();
       c.reviews.push(r);
-      writeJSON(CONTENT_FILE, c);
+      await saveContent(c);
       return redirect(res, '/?review=sent#reviews');
     }
 
@@ -210,12 +210,12 @@ const server = http.createServer(async (req, res) => {
     if (p === '/admin' && method === 'GET') {
       const s = getSession(req);
       if (!s) return html(res, renderLogin(url.searchParams.get('err') === '1'));
-      return html(res, renderAdmin(getContent(), s.c));
+      return html(res, renderAdmin(await getContent(), s.c));
     }
     if (p === '/admin/login' && method === 'POST') {
       if (limited('login:' + ip(req), 8, 15 * 60e3)) return html(res, 'Too many attempts. Try again in 15 minutes.', 429);
       const f = parseForm(await readBody(req));
-      const rec = readJSON(ADMIN_FILE);
+      const rec = await getAdmin();
       const ok = f.username === rec.username && checkPassword(f.password || '', rec);
       if (!ok) return redirect(res, '/admin?err=1');
       return redirect(res, '/admin', { 'Set-Cookie': `${COOKIE}=${encodeURIComponent(makeSession(rec.username))}; ${cookieFlags(req)}; Max-Age=28800` });
@@ -229,39 +229,39 @@ const server = http.createServer(async (req, res) => {
       if (!s) return json(res, { error: 'Not logged in' }, 401);
       if (method !== 'GET' && req.headers['x-csrf-token'] !== s.c) return json(res, { error: 'Bad CSRF token' }, 403);
 
-      if (p === '/api/admin/content' && method === 'GET') return json(res, getContent());
+      if (p === '/api/admin/content' && method === 'GET') return json(res, await getContent());
       if (p === '/api/admin/content' && method === 'PUT') {
         const body = JSON.parse(await readBody(req));
-        const c = sanitizeContent(body, getContent());
-        writeJSON(CONTENT_FILE, c);
+        const c = sanitizeContent(body, await getContent());
+        await saveContent(c);
         return json(res, { ok: true });
       }
       if (p === '/api/admin/reviews' && method === 'PUT') {
         const body = JSON.parse(await readBody(req));
-        const c = getContent();
+        const c = await getContent();
         c.reviews = (body.reviews || []).slice(0, 500).map(sanitizeReview).filter((r) => r.name && r.text);
-        writeJSON(CONTENT_FILE, c);
+        await saveContent(c);
         return json(res, { ok: true });
       }
       if (p === '/api/admin/password' && method === 'POST') {
         const body = JSON.parse(await readBody(req));
-        const rec = readJSON(ADMIN_FILE);
+        const rec = await getAdmin();
         if (!checkPassword(str(body.current, 200), rec)) return json(res, { error: 'Current password is incorrect' }, 400);
         const np = str(body.next, 200);
         if (np.length < 8) return json(res, { error: 'New password must be at least 8 characters' }, 400);
         const nu = str(body.username, 60) || rec.username;
-        writeJSON(ADMIN_FILE, { username: nu, ...hashPassword(np) });
+        await store.set('admin', { username: nu, ...hashPassword(np) });
         return json(res, { ok: true });
       }
       return json(res, { error: 'Not found' }, 404);
     }
 
-    html(res, renderPage('404', getContent(), {}), 404);
+    html(res, renderPage('404', await getContent(), {}), 404);
   } catch (e) {
     console.error(e);
     json(res, { error: 'Server error' }, 500);
   }
 });
 
-if (require.main === module) server.listen(PORT, () => console.log(`United Massage running on http://localhost:${PORT}`));
+if (require.main === module && !process.env.VERCEL) server.listen(PORT, () => console.log(`United Massage running on http://localhost:${PORT}`));
 module.exports = server;
