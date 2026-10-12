@@ -3,7 +3,10 @@
 (function () {
   var sec = document.getElementById('reviews');
   if (!sec) return;
-  fetch('/assets/reviews.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (list) {
+  fetch('/assets/reviews.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (data) {
+    // Accepts a plain list, or {"style": "carousel" | "grid", "reviews": [...]}
+    var list = Array.isArray(data) ? data : data && data.reviews;
+    var grid = !Array.isArray(data) && data && data.style === 'grid';
     if (!Array.isArray(list)) return;
     list = list.filter(function (r) { return r && r.name && r.text && r.source; });
     if (!list.length) return;
@@ -20,6 +23,7 @@
       d.addEventListener('click', function () { go(i, true); }); dots.appendChild(d);
     });
     sec.hidden = false;
+    if (grid) { sec.className += ' revgrid'; dots.hidden = true; return; }
     var cur = 0, timer;
     function go(i, user) {
       cur = (i + list.length) % list.length;

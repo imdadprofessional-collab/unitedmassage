@@ -13,4 +13,5 @@ Simple static website (HTML + CSS, no server, no admin login) for United Massage
 ```json
 [{"name": "Jane D.", "source": "Google", "rating": 5, "text": "The review text."}]
 ```
+To show a grid wall instead of the carousel, use `{"style": "grid", "reviews": [ ...same entries... ]}` (default style is `"carousel"`).
 Entries need `name`, `source` and `text`. The section appears automatically and slides every 5 seconds.
