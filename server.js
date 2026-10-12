@@ -15,7 +15,17 @@ const MAX_BODY = 1024 * 1024;
 // ---------- storage ----------
 const getContent = () => store.get('content');
 const saveContent = (c) => store.set('content', c);
-const getAdmin = () => store.get('admin');
+// On Vercel (Blob storage) the admin login comes from environment variables, so no
+// password hash is ever stored in a public blob. Locally it is stored in data/admin.json.
+let envAdmin;
+async function getAdmin() {
+  if (!store.useBlob) return store.get('admin');
+  if (!envAdmin) {
+    if (!process.env.ADMIN_PASSWORD) throw new Error('Set ADMIN_USER and ADMIN_PASSWORD in the Vercel project settings');
+    envAdmin = { username: process.env.ADMIN_USER || 'admin', ...hashPassword(process.env.ADMIN_PASSWORD, 'vercel-env-salt') };
+  }
+  return envAdmin;
+}
 
 function hashPassword(pw, salt = crypto.randomBytes(16).toString('hex')) {
   return { salt, hash: crypto.scryptSync(pw, salt, 64).toString('hex') };
@@ -30,7 +40,7 @@ function checkPassword(pw, rec) {
 let adminReady;
 function ensureAdmin() {
   adminReady = adminReady || (async () => {
-    if (await getAdmin()) return;
+    if (store.useBlob || await getAdmin()) return;
     const username = process.env.ADMIN_USER || 'admin';
     let pw = process.env.ADMIN_PASSWORD;
     let generated = false;
@@ -245,6 +255,7 @@ const server = http.createServer(async (req, res) => {
       }
       if (p === '/api/admin/password' && method === 'POST') {
         const body = JSON.parse(await readBody(req));
+        if (store.useBlob) return json(res, { error: 'On Vercel, change ADMIN_USER / ADMIN_PASSWORD in the project Environment Variables, then redeploy.' }, 400);
         const rec = await getAdmin();
         if (!checkPassword(str(body.current, 200), rec)) return json(res, { error: 'Current password is incorrect' }, 400);
         const np = str(body.next, 200);

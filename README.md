@@ -23,8 +23,9 @@ GitHub Pages is static-only, so the admin login needs a Node host (Render, Railw
 `npm test`
 
 ## Deploy on Vercel
-Vercel has no writable disk, so content is stored in Supabase.
-1. In Supabase, run `supabase.sql` (creates the `site_kv` table).
-2. In Vercel, import this repo and set env vars: `SESSION_SECRET` (long random string), `ADMIN_USER`, `ADMIN_PASSWORD`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`.
-3. Deploy, then add your GoDaddy domain in Vercel → Domains and set the DNS records Vercel shows at GoDaddy.
-The admin account is created from `ADMIN_USER`/`ADMIN_PASSWORD` on first visit; change it afterwards in the admin panel.
+Vercel has no writable disk, so edited content is stored in **Vercel Blob** (no other service needed).
+1. Import this repo as a Vercel project.
+2. Project → Storage → create a **Blob** store and connect it (adds `BLOB_READ_WRITE_TOKEN`).
+3. Project → Settings → Environment Variables: `SESSION_SECRET` (long random string), `ADMIN_USER`, `ADMIN_PASSWORD`.
+4. Redeploy, then add your GoDaddy domain under Settings → Domains and set the DNS records Vercel shows.
+On Vercel the admin login comes from the env vars; to change it, edit them and redeploy. Content and reviews are edited in `/admin`.
