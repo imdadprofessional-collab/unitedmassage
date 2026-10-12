@@ -22,10 +22,5 @@ GitHub Pages is static-only, so the admin login needs a Node host (Render, Railw
 ## Test
 `npm test`
 
-## Deploy on Vercel
-Vercel has no writable disk, so edited content is stored in **Vercel Blob** (no other service needed).
-1. Import this repo as a Vercel project.
-2. Project → Storage → create a **Blob** store and connect it (adds `BLOB_READ_WRITE_TOKEN`).
-3. Project → Settings → Environment Variables: `SESSION_SECRET` (long random string), `ADMIN_USER`, `ADMIN_PASSWORD`.
-4. Redeploy, then add your GoDaddy domain under Settings → Domains and set the DNS records Vercel shows.
-On Vercel the admin login comes from the env vars; to change it, edit them and redeploy. Content and reviews are edited in `/admin`.
+## Deploy
+See [DEPLOY.md](DEPLOY.md) for GoDaddy (cPanel Node.js app or VPS) and Docker. Vercel is also supported (Blob storage) but not required.

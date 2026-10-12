@@ -1,0 +1,4 @@
+node_modules
+.git
+data/admin.json
+data/session-secret
