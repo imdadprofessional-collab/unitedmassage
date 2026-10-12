@@ -1,4 +1,1 @@
-{
-  "rewrites": [{ "source": "/((?!.*\\.(?:css|js|svg|png|jpg|ico|webp|txt)$).*)", "destination": "/api/index" }],
-  "functions": { "api/index.js": { "includeFiles": "data/content.json" } }
-}
+{ "cleanUrls": true }

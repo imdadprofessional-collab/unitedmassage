@@ -1,10 +1,1 @@
-{
-  "name": "unitedmassage",
-  "version": "1.0.0",
-  "description": "United Massage website with an editable admin panel",
-  "main": "server.js",
-  "scripts": { "start": "node server.js", "test": "node test.js" },
-  "engines": { "node": ">=18" },
-  "dependencies": { "@vercel/blob": "^1.0.0" },
-  "license": "UNLICENSED"
-}
+{ "name": "unitedmassage", "version": "2.0.0", "private": true, "description": "United Massage static website" }
