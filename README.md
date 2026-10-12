@@ -7,3 +7,10 @@ Simple static website (HTML + CSS, no server, no admin login) for United Massage
 - Phone/address are plain text in the HTML files; edit them there.
 - Photos: none are included. Drop images in `assets/` and reference them in `index.html`.
 - Deploy: import the repo in Vercel (framework preset "Other", no build command). Add the GoDaddy domain under Settings → Domains.
+
+## Reviews carousel (real reviews only)
+`assets/reviews.json` is empty, so the section is hidden. Add only genuine customer reviews, with permission, e.g.:
+```json
+[{"name": "Jane D.", "source": "Google", "rating": 5, "text": "The review text."}]
+```
+Entries need `name`, `source` and `text`. The section appears automatically and slides every 5 seconds.
